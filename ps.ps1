@@ -4,6 +4,8 @@ $message = "Have a nice day"
 
 $uri = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatID&text=$message"
 
+
+
 # Caps Lock signal
 $keyBoardObject = New-Object -ComObject WScript.Shell
 for ($i=0; $i -lt 4; $i++) {
